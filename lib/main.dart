@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert' show json, base64, ascii;
+
+const SERVER_IP = 'http://127.0.0.1:5000';
+final storage = FlutterSecureStorage();
 
 void main() {
   runApp(MyApp());

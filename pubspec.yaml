@@ -24,6 +24,13 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # This package contains a set of high-level functions and classes that make it easy to consume HTTP resources. 
+  # It's platform-independent, and can be used on both the command-line and the browser.
+  http: ^0.12.1
+
+  # Flutter Secure Storage provides API to store data in secure storage. Keychain is used in iOS, KeyStore based solution is used in Android.
+  flutter_secure_storage: ^3.3.1+1
+
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
