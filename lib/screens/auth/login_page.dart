@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mastawesha/main.dart';
 import 'package:mastawesha/screens/home.dart';
+import 'package:mastawesha/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -30,6 +34,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthService authService = Provider.of<AuthService>(context);
     return Scaffold(
         appBar: AppBar(title: Text("Log In")),
         body: Padding(
@@ -52,10 +57,11 @@ class LoginPage extends StatelessWidget {
                   var jwt = await attemptLogIn(username, password);
                   if (jwt != null) {
                     storage.write(key: "jwt", value: jwt);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HomePage.fromBase64(jwt)));
+                    authService.payload = json.decode(ascii.decode(
+                        base64.decode(base64.normalize(jwt.split(".")[1]))));
+                    authService.jwt = jwt;
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomePage()));
                   } else {
                     displayDialog(context, "An Error Occurred",
                         "No account was found matching that username and password");
