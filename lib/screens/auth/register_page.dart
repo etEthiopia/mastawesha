@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mastawesha/global/global.dart';
@@ -7,15 +5,15 @@ import 'package:mastawesha/main.dart';
 import 'package:mastawesha/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
-class SignIn extends StatefulWidget {
+class SignUp extends StatefulWidget {
   final Function toggleView;
-  SignIn({this.toggleView});
+  SignUp({this.toggleView});
 
   @override
-  _SignInState createState() => _SignInState();
+  _SignUpState createState() => _SignUpState();
 }
 
-class _SignInState extends State<SignIn> {
+class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -110,27 +108,28 @@ class _SignInState extends State<SignIn> {
                   child: RaisedButton(
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        var jwt = await attemptLogIn(
+                        var res = await attemptSignUp(
                             _emailController.text, _passwordController.text);
-                        if (jwt != null) {
-                          storage.write(key: "jwt", value: jwt);
-                          authService.jwt = jwt;
-                          authService.payload = json.decode(ascii.decode(base64
-                              .decode(base64.normalize(jwt.split(".")[1]))));
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) =>
-                          //             HomePage.fromBase64(jwt)));
+                        if (res == 201) {
+                          print("sign up: sucess");
+                          displayDialog(context, "Success",
+                              "The user was created. Log in now.");
+                        } else if (res == 409) {
+                          print("sign up: already registered");
+                          displayDialog(
+                              context,
+                              "That username is already registered",
+                              "Please try to sign up using another username or log in if you already have an account.");
                         } else {
-                          displayDialog(context, "An Error Occurred",
-                              "No account was found matching that username and password");
+                          print("sign up: Error");
+                          displayDialog(
+                              context, "Error", "An unknown error occurred.");
                         }
                       }
                     },
                     color: darkRedColor,
                     child: Text(
-                      "Sign In",
+                      "Sign Up",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -164,13 +163,6 @@ class _SignInState extends State<SignIn> {
         builder: (context) =>
             AlertDialog(title: Text(title), content: Text(text)),
       );
-
-  Future<String> attemptLogIn(String username, String password) async {
-    var res = await http.post("$SERVER_IP/login",
-        body: {"username": username, "password": password});
-    if (res.statusCode == 200) return res.body;
-    return null;
-  }
 
   Future<int> attemptSignUp(String username, String password) async {
     var res = await http.post('$SERVER_IP/signup',

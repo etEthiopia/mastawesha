@@ -20,8 +20,8 @@ class HomePage extends StatelessWidget {
               icon: Icon(Icons.person),
               onPressed: () async {
                 storage.delete(key: "jwt");
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => LoginPage()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => SignIn()));
                 authService.jwt = null;
                 authService.payload = null;
                 print("deleted");
