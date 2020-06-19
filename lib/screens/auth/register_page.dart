@@ -28,14 +28,18 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       backgroundColor: darkGreyColor,
       appBar: AppBar(
-        title: Text("Sign Up"),
+        centerTitle: true,
+        title: Text(
+          "Sign Up",
+          style: TextStyle(fontFamily: defaultFont),
+        ),
         backgroundColor: darkRedColor,
         elevation: 0.0,
       ),
       body: SingleChildScrollView(
         reverse: true,
         child: Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
+            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
             child: Form(
               key: _formKey,
               child: Column(children: <Widget>[
@@ -225,23 +229,33 @@ class _SignUpState extends State<SignUp> {
                     color: darkRedColor,
                     child: Text(
                       "Sign Up",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: defaultFont),
                     ),
                   ),
                 ),
                 SizedBox(
                   height: 20.0,
                 ),
+                Center(
+                  child: Text(
+                    "or",
+                    style:
+                        TextStyle(color: Colors.white, fontFamily: defaultFont),
+                  ),
+                ),
+                Divider(color: redColor),
                 SizedBox(
                   width: double.infinity,
-                  child: RaisedButton(
+                  child: FlatButton(
                     onPressed: () {
                       widget.toggleView();
                     },
                     color: redColor,
                     child: Text(
                       "Already have an Account?",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                          color: Colors.white, fontFamily: defaultFont),
                     ),
                   ),
                 ),
@@ -255,8 +269,9 @@ class _SignUpState extends State<SignUp> {
   void displayDialog(BuildContext context, String title, String text) =>
       showDialog(
         context: context,
-        builder: (context) =>
-            AlertDialog(title: Text(title), content: Text(text)),
+        builder: (context) => AlertDialog(
+            title: Text(title, style: TextStyle(fontFamily: defaultFont)),
+            content: Text(text, style: TextStyle(fontFamily: defaultFont))),
       );
 
   Future<int> attemptSignUp(
