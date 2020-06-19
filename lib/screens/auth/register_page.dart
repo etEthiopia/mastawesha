@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mastawesha/global/global.dart';
@@ -15,16 +17,18 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _fnameController = TextEditingController();
+  final TextEditingController _lnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _cpasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    final AuthService authService = Provider.of<AuthService>(context);
     return Scaffold(
       backgroundColor: darkGreyColor,
       appBar: AppBar(
-        title: Text("Sign In"),
+        title: Text("Sign Up"),
         backgroundColor: darkRedColor,
         elevation: 0.0,
       ),
@@ -49,6 +53,64 @@ class _SignUpState extends State<SignUp> {
                           horizontal: 12.0, vertical: 4.0),
                       child: TextFormField(
                         decoration: InputDecoration(
+                            hintText: "First Name",
+                            icon: Icon(Icons.person),
+                            border: InputBorder.none,
+                            isDense: true),
+                        keyboardType: TextInputType.text,
+                        controller: _fnameController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "First Name cannot be empty";
+                          } else if (value.length > 15) {
+                            return "First Name length must be < 15";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(5.0),
+                    color: Colors.white.withOpacity(0.8),
+                    elevation: 0.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 4.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                            hintText: "Last Name",
+                            icon: Icon(Icons.person),
+                            border: InputBorder.none,
+                            isDense: true),
+                        keyboardType: TextInputType.text,
+                        controller: _lnameController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "Last Name cannot be empty";
+                          } else if (value.length > 15) {
+                            return "Last Name length must be < 15";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(5.0),
+                    color: Colors.white.withOpacity(0.8),
+                    elevation: 0.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 4.0),
+                      child: TextFormField(
+                        decoration: InputDecoration(
                             hintText: "Email",
                             icon: Icon(Icons.mail),
                             border: InputBorder.none,
@@ -57,7 +119,7 @@ class _SignUpState extends State<SignUp> {
                         controller: _emailController,
                         validator: (value) {
                           if (value.isEmpty) {
-                            return "The password cannot be empty";
+                            return "The Email cannot be empty";
                           } else {
                             Pattern pattern =
                                 r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
@@ -82,6 +144,7 @@ class _SignUpState extends State<SignUp> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12.0, vertical: 4.0),
                       child: TextFormField(
+                        obscureText: true,
                         decoration: InputDecoration(
                             hintText: "Password",
                             icon: Icon(Icons.lock),
@@ -100,6 +163,35 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    borderRadius: BorderRadius.circular(5.0),
+                    color: Colors.white.withOpacity(0.8),
+                    elevation: 0.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 4.0),
+                      child: TextFormField(
+                        obscureText: true,
+                        decoration: InputDecoration(
+                            hintText: "Confirm Password",
+                            icon: Icon(Icons.lock),
+                            border: InputBorder.none,
+                            isDense: true),
+                        controller: _cpasswordController,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return "please confirm password";
+                          } else if (value != _passwordController.text) {
+                            return "passwords doesn't match";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                ),
                 SizedBox(
                   height: 20.0,
                 ),
@@ -109,7 +201,10 @@ class _SignUpState extends State<SignUp> {
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         var res = await attemptSignUp(
-                            _emailController.text, _passwordController.text);
+                            fname: _fnameController.text,
+                            lname: _lnameController.text,
+                            email: _emailController.text,
+                            password: _passwordController.text);
                         if (res == 201) {
                           print("sign up: sucess");
                           displayDialog(context, "Success",
@@ -145,7 +240,7 @@ class _SignUpState extends State<SignUp> {
                     },
                     color: redColor,
                     child: Text(
-                      "Create an Account",
+                      "Already have an Account?",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -164,9 +259,18 @@ class _SignUpState extends State<SignUp> {
             AlertDialog(title: Text(title), content: Text(text)),
       );
 
-  Future<int> attemptSignUp(String username, String password) async {
-    var res = await http.post('$SERVER_IP/signup',
-        body: {"username": username, "password": password});
+  Future<int> attemptSignUp(
+      {String email, String password, String fname, String lname}) async {
+    var res = await http.post('$SERVER_IP/users/register',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "firstname": fname,
+          "lastname": lname,
+          "email": email,
+          "password": password
+        }));
     return res.statusCode;
   }
 }

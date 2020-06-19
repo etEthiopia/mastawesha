@@ -165,16 +165,10 @@ class _SignInState extends State<SignIn> {
             AlertDialog(title: Text(title), content: Text(text)),
       );
 
-  Future<String> attemptLogIn(String username, String password) async {
-    var res = await http.post("$SERVER_IP/login",
-        body: {"username": username, "password": password});
+  Future<String> attemptLogIn(String email, String password) async {
+    var res = await http.post("$SERVER_IP/users/login",
+        body: {"email": email, "password": password});
     if (res.statusCode == 200) return res.body;
     return null;
-  }
-
-  Future<int> attemptSignUp(String username, String password) async {
-    var res = await http.post('$SERVER_IP/signup',
-        body: {"username": username, "password": password});
-    return res.statusCode;
   }
 }
