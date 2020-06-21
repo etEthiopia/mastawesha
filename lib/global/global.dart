@@ -6,10 +6,15 @@ Color redColor = Color(0xFFDC4F64);
 
 Color darkRedColor = Color(0xFFAA3F4D);
 
+Color superdarkRedColor = Color(0xFF84323B);
+
 String defaultFont = 'Avenir';
 
-TextStyle intrayTitleStyle =
-    TextStyle(fontFamily: 'Avenir', fontSize: 40, fontWeight: FontWeight.bold);
+TextStyle bigTitleStyle = TextStyle(
+    fontFamily: 'Avenir',
+    color: redColor,
+    fontSize: 40,
+    fontWeight: FontWeight.bold);
 
 TextStyle darkTodoTitle = TextStyle(
     fontFamily: 'Avenir',

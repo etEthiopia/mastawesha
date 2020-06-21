@@ -40,7 +40,7 @@ class _SignInState extends State<SignIn> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Material(
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(15.0),
         color: Colors.white.withOpacity(0.8),
         elevation: 0.0,
         child: Padding(
@@ -76,7 +76,7 @@ class _SignInState extends State<SignIn> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Material(
-        borderRadius: BorderRadius.circular(5.0),
+        borderRadius: BorderRadius.circular(15.0),
         color: Colors.white.withOpacity(0.8),
         elevation: 0.0,
         child: Padding(
@@ -105,31 +105,36 @@ class _SignInState extends State<SignIn> {
   Widget _signinBtn({AuthService authService}) {
     return SizedBox(
       width: double.infinity,
-      child: RaisedButton(
-        onPressed: () async {
-          if (_formKey.currentState.validate()) {
-            var jwt = await attemptLogIn(
-                _emailController.text, _passwordController.text);
-            if (jwt != null) {
-              storage.write(key: "jwt", value: jwt);
-              authService.jwt = jwt;
-              authService.payload = json.decode(ascii
-                  .decode(base64.decode(base64.normalize(jwt.split(".")[1]))));
-              // Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //         builder: (context) =>
-              //             HomePage.fromBase64(jwt)));
-            } else {
-              displayDialog(context, "An Error Occurred",
-                  "No account was found matching that username and password");
-            }
-          }
-        },
+      child: Material(
         color: darkRedColor,
-        child: Text(
-          "Sign In",
-          style: TextStyle(color: Colors.white, fontFamily: defaultFont),
+        borderRadius: BorderRadius.circular(15.0),
+        child: FlatButton(
+          onPressed: () async {
+            if (_formKey.currentState.validate()) {
+              var jwt = await attemptLogIn(
+                  email: _emailController.text,
+                  password: _passwordController.text);
+              if (jwt != null) {
+                storage.write(key: "jwt", value: jwt);
+                authService.jwt = jwt;
+                authService.payload = json.decode(ascii.decode(
+                    base64.decode(base64.normalize(jwt.split(".")[1]))));
+                // Navigator.push(
+                //     context,
+                //     MaterialPageRoute(
+                //         builder: (context) =>
+                //             HomePage.fromBase64(jwt)));
+              } else {
+                displayDialog(context, "An Error Occurred",
+                    "No account was found matching that username and password");
+              }
+            }
+          },
+          child: Text(
+            "Sign In",
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontFamily: defaultFont),
+          ),
         ),
       ),
     );
@@ -151,14 +156,17 @@ class _SignInState extends State<SignIn> {
   Widget _createaccountBtn() {
     return SizedBox(
       width: double.infinity,
-      child: FlatButton(
-        onPressed: () {
-          widget.toggleView();
-        },
+      child: Material(
         color: redColor,
-        child: Text(
-          "Create an Account",
-          style: TextStyle(color: Colors.white, fontFamily: defaultFont),
+        borderRadius: BorderRadius.circular(15.0),
+        child: FlatButton(
+          onPressed: () {
+            widget.toggleView();
+          },
+          child: Text(
+            "Create an Account",
+            style: TextStyle(color: Colors.white, fontFamily: defaultFont),
+          ),
         ),
       ),
     );
@@ -171,7 +179,9 @@ class _SignInState extends State<SignIn> {
       return SingleChildScrollView(
         reverse: true,
         child: Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            padding: EdgeInsets.symmetric(
+                vertical: MediaQuery.of(context).size.height / 6,
+                horizontal: 20.0),
             child: Form(
               key: _formKey,
               child: Column(children: <Widget>[
@@ -188,7 +198,7 @@ class _SignInState extends State<SignIn> {
               ]),
             )),
       );
-    } else if (orientation == Orientation.landscape)
+    } else {
       return Container(
           child: SingleChildScrollView(
         reverse: true,
@@ -196,7 +206,9 @@ class _SignInState extends State<SignIn> {
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width / 3,
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+              padding: EdgeInsets.symmetric(
+                  vertical: MediaQuery.of(context).size.height / 4,
+                  horizontal: 20.0),
               child: Column(
                 children: <Widget>[
                   _logoSection(),
@@ -207,7 +219,9 @@ class _SignInState extends State<SignIn> {
             ),
             Container(
                 width: MediaQuery.of(context).size.width / 1.5,
-                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                padding: EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height / 4,
+                    horizontal: 20.0),
                 child: Form(
                   key: _formKey,
                   child: Column(children: <Widget>[
@@ -221,6 +235,7 @@ class _SignInState extends State<SignIn> {
           ],
         ),
       ));
+    }
   }
 
   @override
@@ -228,12 +243,6 @@ class _SignInState extends State<SignIn> {
     final AuthService authService = Provider.of<AuthService>(context);
     return Scaffold(
       backgroundColor: darkGreyColor,
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Sign In", style: TextStyle(fontFamily: defaultFont)),
-        backgroundColor: darkRedColor,
-        elevation: 0.0,
-      ),
       body: _layout(authService: authService),
     );
   }
@@ -250,9 +259,13 @@ class _SignInState extends State<SignIn> {
             )),
       );
 
-  Future<String> attemptLogIn(String email, String password) async {
+  Future<String> attemptLogIn({String email, String password}) async {
     var res = await http.post("$SERVER_IP/users/login",
-        body: {"email": email, "password": password});
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body:
+            jsonEncode(<String, String>{"email": email, "password": password}));
     if (res.statusCode == 200) return res.body;
     return null;
   }

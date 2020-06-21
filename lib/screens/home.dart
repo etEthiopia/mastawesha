@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:mastawesha/global/global.dart';
 import 'package:mastawesha/main.dart';
 import 'package:mastawesha/screens/auth/login_page.dart';
 import 'package:mastawesha/services/auth_service.dart';
@@ -12,16 +13,24 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthService authService = Provider.of<AuthService>(context);
+    print("build home page");
     return Scaffold(
+      backgroundColor: darkGreyColor,
       appBar: AppBar(
-        title: Text("Secret Data Screen"),
+        centerTitle: true,
+        title: Text("Home", style: TextStyle(fontFamily: defaultFont)),
+        backgroundColor: darkRedColor,
+        elevation: 0.0,
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.person),
+              icon: Icon(
+                Icons.person,
+                color: Colors.white,
+              ),
               onPressed: () async {
                 storage.delete(key: "jwt");
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => SignIn()));
+                // Navigator.push(
+                //     context, MaterialPageRoute(builder: (context) => SignIn()));
                 authService.jwt = null;
                 authService.payload = null;
                 print("deleted");
@@ -29,23 +38,27 @@ class HomePage extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: FutureBuilder(
-            future: http.read('$SERVER_IP/data', headers: {
-              "Authorization": authService.jwt
-            }).catchError((e) => {print(e.toString())}),
-            builder: (context, snapshot) => snapshot.hasData
-                ? Column(
-                    children: <Widget>[
-                      Text(
-                          "${authService.payload['username']}, here's the data:"),
-                      Text(snapshot.data,
-                          style: Theme.of(context).textTheme.display1)
-                    ],
-                  )
-                : snapshot.hasError
-                    ? Text("An error occurred")
-                    : CircularProgressIndicator()),
-      ),
+          child: Text(
+        "Logged In",
+        style: bigTitleStyle,
+      )
+          //    FutureBuilder(
+          //     future: http.read('$SERVER_IP/data', headers: {
+          //       "Authorization": authService.jwt
+          //     }).catchError((e) => {print(e.toString())}),
+          //     builder: (context, snapshot) => snapshot.hasData
+          //         ? Column(
+          //             children: <Widget>[
+          //               Text(
+          //                   "${authService.payload['username']}, here's the data:"),
+          //               Text(snapshot.data,
+          //                   style: Theme.of(context).textTheme.display1)
+          //             ],
+          //           )
+          //         : snapshot.hasError
+          //             ? Text("An error occurred")
+          //             : CircularProgressIndicator()),
+          ),
     );
   }
 }

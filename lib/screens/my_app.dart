@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mastawesha/global/global.dart';
 import 'dart:convert';
 import 'package:mastawesha/screens/home.dart';
 import 'package:mastawesha/services/auth_service.dart';
@@ -19,9 +20,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (context) => AuthService())],
       child: MaterialApp(
-        title: 'Authentication Demo',
+        title: 'Mastawesha',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: redColor,
         ),
         home: FutureBuilder(
             future: jwtOrEmpty,
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
                     authService.payload = json.decode(ascii.decode(
                         base64.decode(base64.normalize(str.split(".")[1]))));
                     authService.jwt = str;
+                    print("return home page");
                     return HomePage();
                   } else {
                     return Authenticate();
