@@ -7,6 +7,8 @@ import 'package:mastawesha/main.dart';
 import 'package:mastawesha/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
+import '../home.dart';
+
 class SignIn extends StatefulWidget {
   final Function toggleView;
   SignIn({this.toggleView});
@@ -82,6 +84,7 @@ class _SignInState extends State<SignIn> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           child: TextFormField(
+            obscureText: true,
             decoration: InputDecoration(
                 hintText: "Password",
                 icon: Icon(Icons.lock),
@@ -111,22 +114,26 @@ class _SignInState extends State<SignIn> {
         child: FlatButton(
           onPressed: () async {
             if (_formKey.currentState.validate()) {
-              var jwt = await attemptLogIn(
+              var code = await authService.attemptLogIn(
                   email: _emailController.text,
                   password: _passwordController.text);
-              if (jwt != null) {
-                storage.write(key: "jwt", value: jwt);
-                authService.jwt = jwt;
-                authService.payload = json.decode(ascii.decode(
-                    base64.decode(base64.normalize(jwt.split(".")[1]))));
+              print("CODE:" + code.toString());
+              if (code == null) {
+                displayDialog(
+                    context, "An Error Occurred", "Error while Login");
                 // Navigator.push(
                 //     context,
                 //     MaterialPageRoute(
                 //         builder: (context) =>
                 //             HomePage.fromBase64(jwt)));
-              } else {
+              } else if (code == 200) {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => HomePage()));
+              } else if (code != 200) {
                 displayDialog(context, "An Error Occurred",
                     "No account was found matching that username and password");
+              } else {
+                displayDialog(context, "An Error Occurred", "Couldn't login");
               }
             }
           },
@@ -243,7 +250,7 @@ class _SignInState extends State<SignIn> {
     final AuthService authService = Provider.of<AuthService>(context);
     return Scaffold(
       backgroundColor: darkGreyColor,
-      body: _layout(authService: authService),
+      body: SafeArea(child: _layout(authService: authService)),
     );
   }
 
@@ -258,15 +265,4 @@ class _SignInState extends State<SignIn> {
               style: TextStyle(fontFamily: defaultFont),
             )),
       );
-
-  Future<String> attemptLogIn({String email, String password}) async {
-    var res = await http.post("$SERVER_IP/users/login",
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body:
-            jsonEncode(<String, String>{"email": email, "password": password}));
-    if (res.statusCode == 200) return res.body;
-    return null;
-  }
 }

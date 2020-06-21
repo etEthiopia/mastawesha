@@ -1,11 +1,15 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mastawesha/global/global.dart';
 import 'package:mastawesha/main.dart';
 import 'package:mastawesha/services/auth_service.dart';
-
+import 'package:path/path.dart' as p;
+import 'package:provider/provider.dart';
 
 class SignUp extends StatefulWidget {
   final Function toggleView;
@@ -22,6 +26,17 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _cpasswordController = TextEditingController();
+  File _image;
+  final picker = ImagePicker();
+  bool loading = false;
+
+  Future getImage() async {
+    final PickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = File(PickedFile.path);
+    });
+  }
 
   Widget _sizedBox() {
     return SizedBox(
@@ -137,6 +152,7 @@ class _SignUpState extends State<SignUp> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
           child: TextFormField(
+            obscureText: true,
             decoration: InputDecoration(
                 hintText: "Password",
                 icon: Icon(Icons.lock),
@@ -188,7 +204,7 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
-  Widget _signupBtn() {
+  Widget _signupBtn({AuthService authService}) {
     return SizedBox(
       width: double.infinity,
       child: Material(
@@ -197,20 +213,47 @@ class _SignUpState extends State<SignUp> {
         child: FlatButton(
           onPressed: () async {
             if (_formKey.currentState.validate()) {
-              var res = await attemptSignUp(
-                  fname: _fnameController.text,
-                  lname: _lnameController.text,
-                  email: _emailController.text,
-                  password: _passwordController.text);
+              setState(() {
+                loading = true;
+              });
+              var res;
+              if (_image != null) {
+                FormData formData = FormData.fromMap({
+                  "firstname": _fnameController.text,
+                  "lastname": _lnameController.text,
+                  "email": _emailController.text,
+                  "password": _passwordController.text,
+                  "picture": await MultipartFile.fromFile(_image.path,
+                      filename: p.basename(_image.path))
+                });
+
+                res =
+                    await authService.attemptSignUpwithPic(formData: formData);
+              } else {
+                res = await authService.attemptSignUp(
+                    fname: _fnameController.text,
+                    lname: _lnameController.text,
+                    email: _emailController.text,
+                    password: _passwordController.text);
+              }
               if (res == 201) {
+                setState(() {
+                  loading = false;
+                });
                 print("sign up: sucess");
                 displayDialog(
                     context, "Success", "The user was created. Log in now.");
               } else if (res == 409) {
+                setState(() {
+                  loading = false;
+                });
                 print("sign up: already registered");
                 displayDialog(context, "That username is already registered",
                     "Please try to sign up using another username or log in if you already have an account.");
               } else {
+                setState(() {
+                  loading = false;
+                });
                 print("sign up: Error");
                 displayDialog(context, "Error", "An unknown error occurred.");
               }
@@ -262,16 +305,48 @@ class _SignUpState extends State<SignUp> {
     );
   }
 
+  Widget _imagePrompt() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: SizedBox(
+        width: double.infinity,
+        child: Material(
+          color: redColor,
+          borderRadius: BorderRadius.circular(15.0),
+          child: FlatButton(
+            onPressed: () {
+              getImage();
+            },
+            child: _image == null
+                ? Text(
+                    "Add Picture",
+                    style:
+                        TextStyle(color: Colors.white, fontFamily: defaultFont),
+                  )
+                : Text(
+                    p.basename(_image.path),
+                    style:
+                        TextStyle(color: Colors.white, fontFamily: defaultFont),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _layout({AuthService authService}) {
     Orientation orientation = MediaQuery.of(context).orientation;
-
-    if (orientation == Orientation.portrait) {
+    if (loading) {
+      return Container(
+          child: Center(child: SpinKitCubeGrid(color: redColor, size: 100)));
+    } else if (orientation == Orientation.portrait) {
       return SingleChildScrollView(
         reverse: true,
         child: Container(
-            padding: EdgeInsets.symmetric(
-                vertical: MediaQuery.of(context).size.height / 15,
-                horizontal: 20.0),
+            padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height / 5,
+                left: 20.0,
+                right: 20.0),
             child: Form(
               key: _formKey,
               child: Column(children: <Widget>[
@@ -284,7 +359,9 @@ class _SignUpState extends State<SignUp> {
                 _passwordPrompt(),
                 _cpasswordPrompt(),
                 _sizedBox(),
-                _signupBtn(),
+                _imagePrompt(),
+                _sizedBox(),
+                _signupBtn(authService: authService),
                 _sizedBox(),
                 _orText(),
                 _divider(),
@@ -296,7 +373,8 @@ class _SignUpState extends State<SignUp> {
       return SingleChildScrollView(
         reverse: true,
         child: Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+            padding:
+                EdgeInsets.only(top: 20.0, left: 20.0, right: 20, bottom: 5.0),
             child: Form(
               key: _formKey,
               child: Column(
@@ -311,7 +389,14 @@ class _SignUpState extends State<SignUp> {
                       child: _lnamePrompt(),
                     ),
                   ]),
-                  _emailPrompt(),
+                  Row(children: <Widget>[
+                    Expanded(
+                      child: _emailPrompt(),
+                    ),
+                    Expanded(
+                      child: _imagePrompt(),
+                    ),
+                  ]),
                   Row(children: <Widget>[
                     Expanded(
                       child: _passwordPrompt(),
@@ -330,7 +415,7 @@ class _SignUpState extends State<SignUp> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: _signupBtn(),
+                        child: _signupBtn(authService: authService),
                       ),
                     ),
                   ]),
@@ -343,7 +428,10 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: darkGreyColor, body: _layout());
+    final AuthService authService = Provider.of<AuthService>(context);
+    return Scaffold(
+        backgroundColor: darkGreyColor,
+        body: SafeArea(child: _layout(authService: authService)));
   }
 
   // Helper Method
@@ -354,19 +442,4 @@ class _SignUpState extends State<SignUp> {
             title: Text(title, style: TextStyle(fontFamily: defaultFont)),
             content: Text(text, style: TextStyle(fontFamily: defaultFont))),
       );
-
-  Future<int> attemptSignUp(
-      {String email, String password, String fname, String lname}) async {
-    var res = await http.post('$SERVER_IP/users/register',
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode(<String, String>{
-          "firstname": fname,
-          "lastname": lname,
-          "email": email,
-          "password": password
-        }));
-    return res.statusCode;
-  }
 }
