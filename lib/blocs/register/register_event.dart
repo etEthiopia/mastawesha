@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 
@@ -21,4 +22,13 @@ class RegisterPressed extends RegisterEvent {
 
   @override
   List<Object> get props => [fname, lname, email, password];
+}
+
+class RegisterPressedWithPic extends RegisterEvent {
+  final FormData formData;
+
+  RegisterPressedWithPic({@required this.formData});
+
+  @override
+  List<Object> get props => [formData];
 }

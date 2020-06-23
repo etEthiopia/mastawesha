@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:dio/dio.dart';
+
 import '../exceptions/exceptions.dart';
 import '../main.dart';
 import '../models/models.dart';
@@ -9,6 +11,7 @@ abstract class AuthenticationService {
   Future<User> getCurrentUser();
   Future<User> signInWithEmailAndPassword(String email, String password);
   Future<int> signUp(String fname, String lname, String email, String password);
+  Future<int> signUpwithPicture(FormData formData);
   Future<void> signOut();
 }
 
@@ -86,6 +89,29 @@ class FakeAuthenticationService extends AuthenticationService {
 
     if (res.statusCode == 201) {
       if (res.body != null) {
+        return 201;
+      }
+      return null;
+    } else if (res.statusCode == 409) {
+      throw AuthenticationException(message: 'Account already exists');
+    } else {
+      throw AuthenticationException(message: 'Failure to Sign Up');
+    }
+  }
+
+  @override
+  Future<int> signUpwithPicture(FormData formData) async {
+    // TODO:signUpwithPicture
+    var res = await Dio().post(
+      '$SERVER_IP/users/registerp',
+      data: formData,
+      onSendProgress: (int sent, int total) {
+        print("$sent ---- $total");
+      },
+    );
+
+    if (res.statusCode == 201) {
+      if (res.data != null) {
         return 201;
       }
       return null;

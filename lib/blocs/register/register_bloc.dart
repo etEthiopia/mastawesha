@@ -8,7 +8,6 @@ import 'package:mastawesha/services/services.dart';
 //import 'package:bloc_pattern_full/blocs/authentication/authentication_event.dart';
 
 import '../../exceptions/exceptions.dart';
-//import '../../services/services.dart';
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final AuthenticationBloc _authenticationBloc;
@@ -29,6 +28,9 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     if (event is RegisterPressed) {
       yield* _mapRegisterPressedToState(event);
     }
+    if (event is RegisterPressedWithPic) {
+      yield* _mapRegisterPressedWithPicToState(event);
+    }
   }
 
   Stream<RegisterState> _mapRegisterPressedToState(
@@ -38,6 +40,28 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
       print("ABOUT to fire method");
       final code = await _authenticationService.signUp(
           event.fname, event.lname, event.email, event.password);
+      if (code == 201) {
+        // push new authentication event
+        _authenticationBloc.add(UserRegistered());
+        yield RegisterSuccess();
+        yield RegisterInitial();
+      } else {
+        yield RegisterFailure(error: 'Something very weird just happened');
+      }
+    } on AuthenticationException catch (e) {
+      yield RegisterFailure(error: e.message);
+    } catch (err) {
+      yield RegisterFailure(error: err.message ?? 'An unknown error occured');
+    }
+  }
+
+  Stream<RegisterState> _mapRegisterPressedWithPicToState(
+      RegisterPressedWithPic event) async* {
+    yield RegisterLoading();
+    try {
+      print("ABOUT to fire method");
+      final code =
+          await _authenticationService.signUpwithPicture(event.formData);
       if (code == 201) {
         // push new authentication event
         _authenticationBloc.add(UserRegistered());

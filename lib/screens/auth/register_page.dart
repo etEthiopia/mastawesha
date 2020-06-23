@@ -5,35 +5,21 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mastawesha/blocs/auth_form/form_bloc.dart';
 import 'package:mastawesha/blocs/auth_form/form_event.dart';
-import 'package:mastawesha/blocs/auth_form/form_state.dart';
 import 'package:mastawesha/blocs/authentication/authentication_bloc.dart';
-import 'package:mastawesha/blocs/authentication/authentication_event.dart';
-import 'package:mastawesha/blocs/authentication/authetnication_state.dart';
-import 'package:mastawesha/blocs/login/login_bloc.dart';
-import 'package:mastawesha/blocs/login/login_event.dart';
-import 'package:mastawesha/blocs/login/login_state.dart';
+
 import 'package:mastawesha/blocs/register/register_bloc.dart';
 import 'package:mastawesha/blocs/register/register_event.dart';
 import 'package:mastawesha/blocs/register/register_state.dart';
 import 'package:mastawesha/global/global.dart';
-import 'package:mastawesha/main.dart';
-import 'package:mastawesha/screens/auth/auth_page.dart';
 
 import 'package:mastawesha/services/authentication_service.dart';
-import 'package:provider/provider.dart';
 
-import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:mastawesha/global/global.dart';
-import 'package:mastawesha/main.dart';
-import 'package:path/path.dart' as p;
 
-import '../home.dart';
+import 'package:path/path.dart' as p;
 
 class SignUp extends StatefulWidget {
   @override
@@ -93,6 +79,7 @@ class __SignUpFormState extends State<_SignUpForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _cpasswordController = TextEditingController();
+  FormData formData;
   File _image;
   final picker = ImagePicker();
   bool loading = false;
@@ -120,6 +107,17 @@ class __SignUpFormState extends State<_SignUpForm> {
           fname: _fnameController.text,
           lname: _lnameController.text,
         ));
+      } else {
+        setState(() {
+          _autoValidate = true;
+        });
+      }
+    }
+
+    _onRegisterWitPicButtonPressed() {
+      print("FORM KEY: " + _key.currentState.toString());
+      if (_key.currentState.validate()) {
+        _registerBloc.add(RegisterPressedWithPic(formData: formData));
       } else {
         setState(() {
           _autoValidate = true;
@@ -310,7 +308,7 @@ class __SignUpFormState extends State<_SignUpForm> {
             onPressed: () async {
               if (state is! RegisterLoading) {
                 if (_image != null) {
-                  FormData formData = FormData.fromMap({
+                  formData = FormData.fromMap({
                     "firstname": _fnameController.text,
                     "lastname": _lnameController.text,
                     "email": _emailController.text,
@@ -319,35 +317,12 @@ class __SignUpFormState extends State<_SignUpForm> {
                         filename: p.basename(_image.path))
                   });
 
-                  // res = await authService.attemptSignUpwithPic(
-                  //     formData: formData);
+                  _onRegisterWitPicButtonPressed();
                 } else {
                   _onRegisterButtonPressed();
                 }
               }
             },
-            // if (res == 201) {
-            //   setState(() {
-            //     loading = false;
-            //   });
-            //   print("sign up: sucess");
-            //   displayDialog(
-            //       context, "Success", "The user was created. Log in now.");
-            // } else if (res == 409) {
-            //   setState(() {
-            //     loading = false;
-            //   });
-            //   print("sign up: already registered");
-            //   displayDialog(context, "That username is already registered",
-            //       "Please try to sign up using another username or log in if you already have an account.");
-            // } else {
-            //   setState(() {
-            //     loading = false;
-            //   });
-            //   print("sign up: Error");
-            //   displayDialog(context, "Error", "An unknown error occurred.");
-            // }
-
             child: Text(
               "Sign Up",
               style: TextStyle(
@@ -530,65 +505,6 @@ class __SignUpFormState extends State<_SignUpForm> {
                   )),
             );
           }
-
-          // Form(
-          //   key: _key,
-          //   autovalidate: _autoValidate,
-          //   child: SingleChildScrollView(
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.stretch,
-          //       children: <Widget>[
-          //         TextFormField(
-          //           decoration: InputDecoration(
-          //             labelText: 'Email address',
-          //             filled: true,
-          //             isDense: true,
-          //           ),
-          //           controller: _emailController,
-          //           keyboardType: TextInputType.emailAddress,
-          //           autocorrect: false,
-          //           validator: (value) {
-          //             if (value == null) {
-          //               return 'Email is required.';
-          //             }
-          //             return null;
-          //           },
-          //         ),
-          //         SizedBox(
-          //           height: 12,
-          //         ),
-          //         TextFormField(
-          //           decoration: InputDecoration(
-          //             labelText: 'Password',
-          //             filled: true,
-          //             isDense: true,
-          //           ),
-          //           obscureText: true,
-          //           controller: _passwordController,
-          //           validator: (value) {
-          //             if (value == null) {
-          //               return 'Password is required.';
-          //             }
-          //             return null;
-          //           },
-          //         ),
-          //         const SizedBox(
-          //           height: 16,
-          //         ),
-          //         RaisedButton(
-          //           color: Theme.of(context).primaryColor,
-          //           textColor: Colors.white,
-          //           padding: const EdgeInsets.all(16),
-          //           shape: new RoundedRectangleBorder(
-          //               borderRadius: new BorderRadius.circular(8.0)),
-          //           child: Text('LOG IN'),
-          //           onPressed:
-          //               state is RegisterLoading ? () {} : _onRegisterButtonPressed,
-          //         )
-          //       ],
-          //     ),
-          //   ),
-          // );
         },
       ),
     );
