@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:mastawesha/Models/user_model.dart';
 import 'package:mastawesha/main.dart';
 import 'package:http/http.dart' as http;
 
@@ -31,9 +30,9 @@ class AuthService extends ChangeNotifier {
     storage.write(key: "jwt", value: jwt);
   }
 
-  Stream<User> get onAuthStateChanged {
-    return User.instance as Stream<User>;
-  }
+  // Stream<User> get onAuthStateChanged {
+  //   return User.instance as Stream<User>;
+  // }
 
   Future<int> attemptLogIn({String email, String password}) async {
     var res = await http.post("$SERVER_IP/users/login",
