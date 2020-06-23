@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:mastawesha/blocs/authentication/authentication_bloc.dart';
 import 'package:mastawesha/blocs/authentication/authentication_event.dart';
-import 'package:mastawesha/servicescopy/services.dart';
+import 'package:mastawesha/services/services.dart';
 //import 'package:bloc_pattern_full/blocs/authentication/authentication_bloc.dart';
 //import 'package:bloc_pattern_full/blocs/authentication/authentication_event.dart';
 import 'login_event.dart';

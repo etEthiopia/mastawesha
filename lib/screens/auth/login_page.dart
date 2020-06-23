@@ -13,8 +13,7 @@ import 'package:mastawesha/blocs/login/login_event.dart';
 import 'package:mastawesha/blocs/login/login_state.dart';
 import 'package:mastawesha/global/global.dart';
 import 'package:mastawesha/main.dart';
-import 'package:mastawesha/services/auth_service.dart';
-import 'package:mastawesha/servicescopy/authentication_service.dart';
+import 'package:mastawesha/services/authentication_service.dart';
 import 'package:provider/provider.dart';
 
 import '../home.dart';

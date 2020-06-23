@@ -10,7 +10,6 @@ import 'package:mastawesha/global/global.dart';
 import 'package:mastawesha/main.dart';
 import 'package:mastawesha/screens/auth/auth_page.dart';
 import 'package:mastawesha/screens/auth/login_page.dart';
-import 'package:mastawesha/services/auth_service.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {

@@ -3,8 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mastawesha/blocs/auth_form/form_bloc.dart';
 import 'package:mastawesha/screens/my_app.dart';
-import 'package:mastawesha/services/auth_service.dart';
-import 'package:mastawesha/servicescopy/authentication_service.dart';
+import 'package:mastawesha/services/authentication_service.dart';
 import 'package:provider/provider.dart';
 
 import 'blocs/authentication/authentication_bloc.dart';

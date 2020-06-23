@@ -53,6 +53,21 @@ class FakeAuthenticationService extends AuthenticationService {
     return null;
   }
 
+  // Future<int> attemptSignUpwithPic({FormData formData}) async {
+  //   var res = await Dio().post(
+  //     '$SERVER_IP/users/registerp',
+  //     // options: Options(headers: <String, String>{
+  //     //   'Content-Type': 'application/json; charset=UTF-8',
+  //     // }
+  //     // ),
+  //     data: formData,
+  //     onSendProgress: (int sent, int total) {
+  //       print("$sent ---- $total");
+  //     },
+  //   );
+  //   return res.statusCode;
+  // }
+
   @override
   Future<int> signUp(
       String fname, String lname, String email, String password) async {
