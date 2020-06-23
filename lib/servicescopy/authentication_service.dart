@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 abstract class AuthenticationService {
   Future<User> getCurrentUser();
   Future<User> signInWithEmailAndPassword(String email, String password);
+  Future<int> signUp(String fname, String lname, String email, String password);
   Future<void> signOut();
 }
 
@@ -50,5 +51,33 @@ class FakeAuthenticationService extends AuthenticationService {
   Future<void> signOut() async {
     await storage.delete(key: "jwt");
     return null;
+  }
+
+  @override
+  Future<int> signUp(
+      String fname, String lname, String email, String password) async {
+    print("Method for " + fname);
+    var res = await http.post('$SERVER_IP/users/register',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "firstname": fname,
+          "lastname": lname,
+          "email": email,
+          "password": password
+        }));
+    //return res.statusCode;
+
+    if (res.statusCode == 201) {
+      if (res.body != null) {
+        return 201;
+      }
+      return null;
+    } else if (res.statusCode == 409) {
+      throw AuthenticationException(message: 'Account already exists');
+    } else {
+      throw AuthenticationException(message: 'Failure to Sign Up');
+    }
   }
 }

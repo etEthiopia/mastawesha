@@ -25,5 +25,8 @@ class UserLoggedIn extends AuthenticationEvent {
   List<Object> get props => [user];
 }
 
+// Fired when a user has successfully signed up
+class UserRegistered extends AuthenticationEvent {}
+
 // Fired when the user has logged out
 class UserLoggedOut extends AuthenticationEvent {}

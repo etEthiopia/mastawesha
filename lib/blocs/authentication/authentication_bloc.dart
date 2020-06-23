@@ -26,6 +26,10 @@ class AuthenticationBloc
       yield* _mapUserLoggedInToState(event);
     }
 
+    if (event is UserRegistered) {
+      yield* _mapUserRegisteredToState(event);
+    }
+
     if (event is UserLoggedOut) {
       yield* _mapUserLoggedOutToState(event);
     }
@@ -51,6 +55,11 @@ class AuthenticationBloc
   Stream<AuthenticationState> _mapUserLoggedInToState(
       UserLoggedIn event) async* {
     yield AuthenticationAuthenticated(user: event.user);
+  }
+
+  Stream<AuthenticationState> _mapUserRegisteredToState(
+      UserRegistered event) async* {
+    yield Registered();
   }
 
   Stream<AuthenticationState> _mapUserLoggedOutToState(

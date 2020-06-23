@@ -15,6 +15,8 @@ class AuthenticationLoading extends AuthenticationState {}
 
 class AuthenticationNotAuthenticated extends AuthenticationState {}
 
+class Registered extends AuthenticationState {}
+
 class AuthenticationAuthenticated extends AuthenticationState {
   final User user;
 

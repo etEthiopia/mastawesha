@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mastawesha/blocs/auth_form/form_bloc.dart';
+import 'package:mastawesha/blocs/auth_form/form_state.dart';
+import 'package:mastawesha/screens/auth/create_page.dart';
 import 'package:mastawesha/screens/auth/login_page.dart';
-import 'package:mastawesha/screens/auth/register_page.dart';
 
 class Authenticate extends StatefulWidget {
   @override
@@ -8,20 +11,18 @@ class Authenticate extends StatefulWidget {
 }
 
 class _AuthenticateState extends State<Authenticate> {
-  bool showSignIn = true;
-
-  void toggleView() {
-    setState(() {
-      showSignIn = !showSignIn;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (showSignIn) {
-      return Container(child: SignIn(toggleView: this.toggleView));
-    } else {
-      return Container(child: SignUp(toggleView: this.toggleView));
-    }
+    return Scaffold(
+      body: BlocBuilder<AuthFormBloc, AuthFormState>(
+          bloc: BlocProvider.of<AuthFormBloc>(context),
+          builder: (context, AuthFormState state) {
+            if (state.currentForm == 0) {
+              return SignIn();
+            } else {
+              return SignUp();
+            }
+          }),
+    );
   }
 }

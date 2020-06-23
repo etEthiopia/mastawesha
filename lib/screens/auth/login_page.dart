@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:mastawesha/blocs/auth_form/form_bloc.dart';
+import 'package:mastawesha/blocs/auth_form/form_event.dart';
 import 'package:mastawesha/blocs/authentication/authentication_bloc.dart';
 import 'package:mastawesha/blocs/authentication/authentication_event.dart';
 import 'package:mastawesha/blocs/authentication/authetnication_state.dart';
@@ -18,18 +20,11 @@ import 'package:provider/provider.dart';
 import '../home.dart';
 
 class SignIn extends StatefulWidget {
-  final Function toggleView;
-  SignIn({this.toggleView});
-
   @override
   _SignInState createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
   //_layout(authService: authService)
   @override
   Widget build(BuildContext context) {
@@ -59,23 +54,16 @@ class _SignInState extends State<SignIn> {
                 )
               ],
             ));
+          } else if (state is Registered) {
+            return _AuthForm(); // s
           }
           // show splash screen
           return Center(
-            child: CircularProgressIndicator(
-              strokeWidth: 10,
-            ),
+            child: CircularProgressIndicator(),
           );
         },
       )),
     );
-  }
-
-  void _showError(String error) {
-    Scaffold.of(context).showSnackBar(SnackBar(
-      content: Text(error),
-      backgroundColor: Theme.of(context).errorColor,
-    ));
   }
 }
 
@@ -246,9 +234,8 @@ class __SignInFormState extends State<_SignInForm> {
           color: redColor,
           borderRadius: BorderRadius.circular(15.0),
           child: FlatButton(
-            onPressed: () {
-              //widget.toggleView();
-            },
+            onPressed: () =>
+                BlocProvider.of<AuthFormBloc>(context).add(ToSignUpEvent()),
             child: Text(
               "Create an Account",
               style: TextStyle(color: Colors.white, fontFamily: defaultFont),
