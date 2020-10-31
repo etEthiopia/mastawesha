@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'blocs/authentication/authentication_bloc.dart';
 import 'blocs/authentication/authentication_event.dart';
 
-const SERVER_IP = 'http://192.168.1.3:3000';
+const SERVER_IP = 'http://192.168.1.4:3000';
 final storage = FlutterSecureStorage();
 
 void main() => runApp(

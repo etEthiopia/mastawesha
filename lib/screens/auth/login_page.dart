@@ -213,10 +213,10 @@ class __SignInFormState extends State<_SignInForm> {
       );
     }
 
-    Widget _orText() {
+    Widget _orText(String state) {
       return Center(
         child: Text(
-          "or",
+          state,
           style: TextStyle(color: Colors.white, fontFamily: defaultFont),
         ),
       );
@@ -277,7 +277,7 @@ class __SignInFormState extends State<_SignInForm> {
                       _sizedBox(),
                       _signinBtn(state),
                       _sizedBox(),
-                      _orText(),
+                      _orText(state.toString()),
                       _divider(),
                       _createaccountBtn()
                     ]),
